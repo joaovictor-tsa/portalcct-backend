@@ -1,0 +1,59 @@
+:root {
+  --bg: #f1f1f1;
+  --surface: #009035;
+  --border: black;
+  --text: #e8eef5;
+  --muted: #8b9cb3;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --danger: #f87171;
+  --red: #e30016;
+  --green: #4dff49;
+  --radius: 10px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  font-family: '';
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('./fonts/Satoshi-Regular.woff2') format('woff2'),
+       url('./fonts/Satoshi-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('./fonts/Satoshi-Bold.woff2') format('woff2'),
+       url('./fonts/Satoshi-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Satoshi', sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+main { 
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+

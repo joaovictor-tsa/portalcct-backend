@@ -1,0 +1,169 @@
+.usersContainer{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.usersContainer.settings{
+    align-items: center;
+}
+
+.usersContainer strong{
+    color: black;
+}
+
+.usersHeader{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.usersHeader .btnCadastro{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: white;
+    background-color: var(--surface);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 15px;
+    transition: 0.3s ease-in;
+    border: none;
+    cursor: pointer;
+}
+
+.usersHeader .btnCadastro:hover{
+    opacity: 0.9;
+}
+
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.usersTable{
+    text-align: left;
+    width: 100%;
+    min-width: 600px;
+    font-size: 15px;
+    border-spacing: 0 17px;
+}
+
+.usersTable tr{
+    border: 1px solid black;
+}
+
+.usersTable th, td{
+    padding-right: 30px;
+}
+
+.thActions, .situation{
+    text-align: center;
+}
+
+.usersTable .thSituation, .situation{
+    text-align: center;
+    padding-right: 0;
+}
+
+.situation{
+    background-color: var(--surface);
+    width: 5%;
+    border-radius: 20px;
+    color: white;
+    font-size: 14px;
+}
+
+.situation.active{
+    background-color: var(--surface);
+}
+
+.situation.active span{
+    color: var(--green);
+}
+
+.situation.inactive{
+    background-color: var(--red);
+}
+
+.situation.inactive span{
+    color: #ffb0b8;
+}
+
+.try{
+    text-align: center;
+}
+
+.actions{
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    transform: translateY(1px);
+}
+
+.actions .btnAction{
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.actions .btnAction svg{
+    transform: translateY(1px);
+}
+
+.actions .btnAction:hover{
+    opacity: 0.9;
+}
+
+.actions .btnAction.edit{
+    background-color: rgb(252, 164, 0);
+}
+
+.actions .btnAction.deactivate{
+    background-color: var(--red);
+    color: white;
+}
+
+.actions .btnAction.activate{
+    background-color: var(--surface);
+    color: white;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modalOverlay .registerForm .box{
+    margin: 0 20px;
+}
+
+.formHeader{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5em;
+}
+
+.formHeader .btnFechar{
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 23px;
+    transition: 0.2s ease-in;
+}
+
+.formHeader .btnFechar:hover{
+    color: var(--surface)
+}
+
+.modalOverlay .registerForm .box{
+    box-shadow: none;
+}

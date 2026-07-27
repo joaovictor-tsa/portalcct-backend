@@ -1,0 +1,102 @@
+.box {
+  background: white;
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 5px 5px 5px 1px #b4b4b4;
+  color: black;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.field {
+  flex: 1 1 200px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.input {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--bg);
+  color: black;
+  box-sizing: border-box;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--surface);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ok {
+  color: #009035;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.err {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.row-bottom {
+  margin-bottom: 0.5rem;
+}
+
+.credentialCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 16px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  margin-top: 12px;
+}
+
+.credentialCardIcon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.credentialIcon {
+  font-size: 1.5rem;
+}
+
+.credentialIcon.cert { color: #1e7e34; }
+.credentialIcon.chave { color: #1a56db; }
