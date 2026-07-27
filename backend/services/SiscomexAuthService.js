@@ -32,37 +32,6 @@ export async function obterChaveAcesso(userId) {
   return { clientId: decrypt(row.client_id_enc), clientSecret: decrypt(row.client_secret_enc), roleType: row.role_type };
 }
 
-export async function obterStatusCredenciais(userId) {
-  const { rows } = await pool.query(
-    `SELECT id, tipo, role_type, created_at, updated_at
-     FROM credenciais
-     WHERE user_id = $1 AND tipo IN ('A1', 'CHAVE')`,
-    [userId]
-  );
-
-  const certificado = rows.find((r) => r.tipo === "A1");
-  const chaveAcesso = rows.find((r) => r.tipo === "CHAVE");
-
-  return {
-    possuiCertificado: !!certificado,
-    certificado: certificado
-      ? {
-          id: certificado.id,
-          criadoEm: certificado.created_at,
-          atualizadoEm: certificado.updated_at,
-        }
-      : null,
-    possuiChaveAcesso: !!chaveAcesso,
-    chaveAcesso: chaveAcesso
-      ? {
-          id: chaveAcesso.id,
-          roleType: chaveAcesso.role_type,
-          criadoEm: chaveAcesso.created_at,
-          atualizadoEm: chaveAcesso.updated_at,
-        }
-      : null,
-  };
-}
 /**
  * jwt = apenas o token (sem "Bearer ") para checar expiração.
  * authorizationHeader = valor exato para o header Authorization (como em set-token), exigido pelo CCT (PUCX-ER0201).

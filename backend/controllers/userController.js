@@ -66,26 +66,11 @@ export async function updateUser(req, res) {
   }
 }
 
-export async function situationUser(req, res) {
+export async function deactivateUser(req, res) {
   const { rows } = await pool.query(
-    `SELECT id, name, email, role, active FROM users WHERE id = $1`,
+    `UPDATE users SET active = false, updated_at = now() WHERE id = $1 RETURNING id`,
     [req.params.id]
   );
-
-  const user = rows.find((r) => r.role === "user");
-
-  if(user.active == true){
-    const { rows } = await pool.query(
-      `UPDATE users SET active = false, updated_at = now() WHERE id = $1 RETURNING id`,
-      [req.params.id]
-    );
-  } else{
-    const { rows } = await pool.query(
-      `UPDATE users SET active = true, updated_at = now() WHERE id = $1 RETURNING id`,
-      [req.params.id]
-    );
-  }
-
   if (!rows[0]) return res.status(404).json({ erro: "Usuário não encontrado." });
   res.json({ ok: true });
 }

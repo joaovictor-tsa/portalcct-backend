@@ -1,10 +1,36 @@
 import { pool } from "../db/pool.js";
 import { encrypt } from "../utils/crypto.js";
-import { SiscomexAuthService, obterStatusCredenciais } from "../services/SiscomexAuthService.js";
+import { SiscomexAuthService } from "../services/SiscomexAuthService.js";
 import {
   mensagemErroPfx,
   validarPfxCertificado,
 } from "../utils/validarPfx.js";
+
+export async function obterStatusCredencial(req, res) {
+  try {
+    const userId = req.userId;
+    const { rows } = await pool.query(
+      `SELECT id, tipo, role_type, updated_at FROM credenciais WHERE user_id = $1`,
+      [userId]
+    );
+    const chave = rows.find((r) => r.tipo === "CHAVE");
+    const a1 = rows.find((r) => r.tipo === "A1");
+    const atual = chave ?? a1 ?? null;
+    if (!atual) {
+      return res.json({ existe: false });
+    }
+    return res.json({
+      existe: true,
+      id: atual.id,
+      tipo: atual.tipo,
+      roleType: atual.role_type ?? null,
+      atualizadoEm: atual.updated_at,
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ erro: "Falha ao consultar credencial." });
+  }
+}
 
 export async function uploadCertificado(req, res) {
   try {
@@ -64,14 +90,4 @@ export async function deleteCredencial(req, res){
   const { rows } = await pool.query(`DELETE FROM credenciais WHERE id = $1 RETURNING id`, [req.params.id]);
   if (!rows[0]) return res.status(404).json({ erro: "Credencial não encontrada." });
   res.json({ ok: true });
-}
-
-export async function getStatusCredenciais(req, res) {
-  try {
-    const status = await obterStatusCredenciais(req.userId);
-    res.json(status);
-  } catch (err) {
-    console.error("Erro ao obter status de credenciais:", err);
-    res.status(500).json({ error: "Erro ao consultar credenciais" });
-  }
 }

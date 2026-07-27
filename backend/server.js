@@ -3,12 +3,29 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import { login, me } from "./controllers/authController.js";
-import { listUsers, getUser, createUser, updateUser, situationUser, deleteUser } from "./controllers/userController.js";
-import { uploadCertificado, getStatusCredenciais, deleteCredencial } from "./controllers/certificadoController.js";
+import {
+  listUsers,
+  getUser,
+  createUser,
+  updateUser,
+  deactivateUser,
+  deleteUser,
+} from "./controllers/userController.js";
+import { uploadCertificado, obterStatusCredencial, deleteCredencial } from "./controllers/certificadoController.js";
 import { definirChaveAcesso, limparChaveAcesso } from "./controllers/acessoChaveController.js";
-import { consultarHawb, consultarMawb, consultarResumo } from "./controllers/consultaController.js";
-import { listarFila, cancelarItemFila } from "./controllers/filaConsultaController.js";
-import { getConfiguracoes, updateConfiguracoes } from "./controllers/configuracoesController.js";
+import {
+  consultarHawb,
+  consultarMawb,
+  consultarResumo,
+} from "./controllers/consultaController.js";
+import {
+  listarFila,
+  cancelarItemFila,
+} from "./controllers/filaConsultaController.js";
+import {
+  getConfiguracoes,
+  updateConfiguracoes,
+} from "./controllers/configuracoesController.js";
 import { siscomexConfig } from "./controllers/debugController.js";
 import { authMiddleware } from "./middlewares/authMiddleware.js";
 import { adminMiddleware } from "./middlewares/adminMiddleware.js";
@@ -39,8 +56,11 @@ app.get("/api/users", authMiddleware, listUsers);
 app.get("/api/users/:id", authMiddleware, getUser);
 app.post("/api/users", authMiddleware, createUser);
 app.put("/api/users/:id", authMiddleware, updateUser);
-app.patch("/api/users/:id/change", authMiddleware, situationUser);
+app.patch("/api/users/:id/deactivate", authMiddleware, deactivateUser);
 app.delete("/api/users/:id", authMiddleware, deleteUser);
+
+app.get("/api/credenciais/status", authMiddleware, obterStatusCredencial);
+app.patch("/api/credenciais/:id/delete", authMiddleware, deleteCredencial);
 
 app.post(
   "/api/certificado",
@@ -48,8 +68,6 @@ app.post(
   upload.single("certificado"),
   uploadCertificado
 );
-app.get("/api/credenciais/status", authMiddleware, getStatusCredenciais);
-app.patch("/api/credenciais/:id/delete", authMiddleware, deleteCredencial);
 
 app.post("/api/acesso-chave", authMiddleware, definirChaveAcesso);
 app.delete("/api/acesso-chave", authMiddleware, limparChaveAcesso);
