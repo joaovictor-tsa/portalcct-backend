@@ -1,5 +1,5 @@
-backend/node_modules
-backend/.env
-backend/.envteste
+node_modules/
+.env
+.envteste
 *.log
 .DS_Store
