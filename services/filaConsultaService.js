@@ -3,7 +3,7 @@ import { SiscomexConsultaService } from "./SiscomexConsultaService.js";
 import { gerarPdfConsulta } from "../utils/gerarPdfConsulta.js";
 import { enviarEmailChegada, enviarEmailRecepcionado } from "./emailService.js";
 import { recintos, unidades } from "../utils/tabelasApoio.js";
-import { estaRecepcionada, temChegada } from "../utils/statusConsulta.js";
+import { estaRecepcionada, temChegada, todasPartesRecepcionadas } from "../utils/statusConsulta.js";
 
 /**
  * Garante que exista um item pendente na fila para este documento.
@@ -12,6 +12,12 @@ import { estaRecepcionada, temChegada } from "../utils/statusConsulta.js";
  * não cria duplicata, só reaproveita o item existente.
  * O e-mail de disparo é o cadastrado no usuário que originou o item (não é digitado manualmente).
  */
+function normalizarArray(resultado) {
+  if (Array.isArray(resultado)) return resultado;
+  if (Array.isArray(resultado?.resultado)) return resultado.resultado;
+  return [];
+}
+
 export async function garantirNaFila({ userId, tipo, numero }) {
   const numeroTrim = String(numero).trim();
 
@@ -58,12 +64,24 @@ function obterDataHoraChegada(resultado) {
  * Já vem formatado em pt-BR (ex: "24/07/2026 21:30:44"), então não precisa reformatar.
  */
 function obterDataHoraRecepcao(resultado) {
-  const parte = resultado?.resultado?.[0]?.partesEstoque?.find(
+  const partes = (resultado?.resultado?.[0]?.partesEstoque ?? []).filter(
     (p) => p?.situacaoAtual?.toLowerCase() === "recepcionada"
   );
-  return parte?.dataHoraSituacaoAtual ?? null;
-}
+  if (!partes.length) return null;
 
+  const parseDataPtBr = (str) => {
+    const [dataParte, horaParte] = str.split(" ");
+    const [dia, mes, ano] = dataParte.split("/").map(Number);
+    const [h, m, s] = (horaParte || "00:00:00").split(":").map(Number);
+    return new Date(ano, mes - 1, dia, h, m, s || 0);
+  };
+
+  return partes.reduce((maisRecente, atual) =>
+    !maisRecente || parseDataPtBr(atual.dataHoraSituacaoAtual) > parseDataPtBr(maisRecente.dataHoraSituacaoAtual)
+      ? atual
+      : maisRecente
+  , null)?.dataHoraSituacaoAtual ?? null;
+}
 /**
  * Formata a data ISO (com offset) de chegada para o padrão pt-BR (dd/mm/aaaa hh:mm),
  * sempre no fuso de São Paulo, independente do fuso do servidor.
@@ -125,12 +143,14 @@ async function dispararEmailChegada(item, resultado) {
  * @returns {boolean} true se o item foi resolvido (recepcionado / saiu da fila)
  */
 async function processarResultado(item, resultado) {
-  if (estaRecepcionada(resultado)) {
+  const arr = normalizarArray(resultado);
+
+  if (estaRecepcionada(arr) && todasPartesRecepcionadas(arr)) {
     await dispararEmailERecepcionar(item, resultado);
     return true;
   }
 
-  if (temChegada(resultado) && !item.chegada_notificada_em) {
+  if (temChegada(arr) && !item.chegada_notificada_em) {
     await dispararEmailChegada(item, resultado);
   }
 
@@ -151,7 +171,11 @@ export async function resolverSeNaFila({ numero, resultado }) {
   );
   const item = rows[0];
   if (!item) return;
-  await processarResultado(item, resultado);
+
+  await pool.query(
+    `UPDATE fila_consultas SET tentativas = tentativas + 1, ultima_consulta_em = now(), ultimo_erro = NULL WHERE id = $1`,
+    [item.id]
+  );
 }
 
 async function processarItem(item) {
