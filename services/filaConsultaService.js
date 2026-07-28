@@ -55,7 +55,8 @@ export async function garantirNaFila({ userId, tipo, numero }) {
  * Vem em ISO com offset (ex: "2026-07-24T10:34-03:00") — já traz o fuso embutido.
  */
 function obterDataHoraChegada(resultado) {
-  const viagem = resultado?.resultado?.[0]?.viagensAssociadas?.find((v) => v?.dataHoraChegadaEfetiva);
+  const arr = normalizarArray(resultado);
+  const viagem = arr?.[0]?.viagensAssociadas?.find((v) => v?.dataHoraChegadaEfetiva);
   return viagem?.dataHoraChegadaEfetiva ?? null;
 }
 
@@ -64,7 +65,8 @@ function obterDataHoraChegada(resultado) {
  * Já vem formatado em pt-BR (ex: "24/07/2026 21:30:44"), então não precisa reformatar.
  */
 function obterDataHoraRecepcao(resultado) {
-  const partes = (resultado?.resultado?.[0]?.partesEstoque ?? []).filter(
+  const arr = normalizarArray(resultado);
+  const partes = (arr?.[0]?.partesEstoque ?? []).filter(
     (p) => p?.situacaoAtual?.toLowerCase() === "recepcionada"
   );
   if (!partes.length) return null;
@@ -171,11 +173,7 @@ export async function resolverSeNaFila({ numero, resultado }) {
   );
   const item = rows[0];
   if (!item) return;
-
-  await pool.query(
-    `UPDATE fila_consultas SET tentativas = tentativas + 1, ultima_consulta_em = now(), ultimo_erro = NULL WHERE id = $1`,
-    [item.id]
-  );
+  await processarResultado(item, resultado);
 }
 
 async function processarItem(item) {
