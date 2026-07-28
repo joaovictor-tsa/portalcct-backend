@@ -44,13 +44,53 @@ export async function garantirNaFila({ userId, tipo, numero }) {
   }
 }
 
+/**
+ * Extrai o dataHoraChegadaEfetiva da viagem associada ao documento consultado.
+ * Vem em ISO com offset (ex: "2026-07-24T10:34-03:00") — já traz o fuso embutido.
+ */
+function obterDataHoraChegada(resultado) {
+  const viagem = resultado?.resultado?.[0]?.viagensAssociadas?.find((v) => v?.dataHoraChegadaEfetiva);
+  return viagem?.dataHoraChegadaEfetiva ?? null;
+}
+
+/**
+ * Extrai o dataHoraSituacaoAtual da parte em estoque cuja situacaoAtual é "Recepcionada".
+ * Já vem formatado em pt-BR (ex: "24/07/2026 21:30:44"), então não precisa reformatar.
+ */
+function obterDataHoraRecepcao(resultado) {
+  const parte = resultado?.resultado?.[0]?.partesEstoque?.find(
+    (p) => p?.situacaoAtual?.toLowerCase() === "recepcionada"
+  );
+  return parte?.dataHoraSituacaoAtual ?? null;
+}
+
+/**
+ * Formata a data ISO (com offset) de chegada para o padrão pt-BR (dd/mm/aaaa hh:mm),
+ * sempre no fuso de São Paulo, independente do fuso do servidor.
+ */
+function formatarDataChegada(isoComOffset) {
+  if (!isoComOffset) return null;
+  const data = new Date(isoComOffset);
+  if (Number.isNaN(data.getTime())) return null;
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(data);
+}
+
 async function dispararEmailERecepcionar(item, resultado) {
   const pdfBuffer = gerarPdfConsulta(resultado, recintos, unidades);
+  const dataRecepcao = obterDataHoraRecepcao(resultado);
   await enviarEmailRecepcionado({
     destinatario: item.email_destino,
     tipo: item.tipo,
     numero: item.numero,
     pdfBuffer,
+    dataRecepcao,
   });
   await pool.query(
     `UPDATE fila_consultas SET status = 'recepcionada', ultima_consulta_em = now() WHERE id = $1`,
@@ -61,11 +101,13 @@ async function dispararEmailERecepcionar(item, resultado) {
 
 async function dispararEmailChegada(item, resultado) {
   const pdfBuffer = gerarPdfConsulta(resultado, recintos, unidades);
+  const dataChegada = formatarDataChegada(obterDataHoraChegada(resultado));
   await enviarEmailChegada({
     destinatario: item.email_destino,
     tipo: item.tipo,
     numero: item.numero,
     pdfBuffer,
+    dataChegada,
   });
   await pool.query(
     `UPDATE fila_consultas SET chegada_notificada_em = now(), ultima_consulta_em = now() WHERE id = $1`,

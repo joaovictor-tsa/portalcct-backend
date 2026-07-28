@@ -36,23 +36,25 @@ async function enviarEmail({ destinatario, assunto, texto, numero, pdfBuffer }) 
 }
 
 /** Disparado quando a viagem já tem chegada efetiva, mas a carga ainda não foi recepcionada. */
-export async function enviarEmailChegada({ destinatario, tipo, numero, pdfBuffer }) {
+export async function enviarEmailChegada({ destinatario, tipo, numero, pdfBuffer, dataChegada }) {
+  const linhaData = dataChegada ? ` em ${dataChegada}` : "";
   await enviarEmail({
     destinatario,
     numero,
     pdfBuffer,
     assunto: `Carga chegou — ${tipo} ${numero}`,
-    texto: `A aeronave referente ao ${tipo} ${numero} já pousou (chegada confirmada). A carga ainda está em processo de recepção — você será avisado novamente assim que for recepcionada. Segue em anexo o relatório da consulta.`,
+    texto: `A aeronave referente ao ${tipo} ${numero} já pousou (chegada confirmada)${linhaData}. A carga ainda está em processo de recepção — você será avisado novamente assim que for recepcionada. Segue em anexo o relatório da consulta.`,
   });
 }
 
 /** Disparado quando a situação atual vira RECEPCIONADA — encerra o monitoramento desse item. */
-export async function enviarEmailRecepcionado({ destinatario, tipo, numero, pdfBuffer }) {
+export async function enviarEmailRecepcionado({ destinatario, tipo, numero, pdfBuffer, dataRecepcao }) {
+  const linhaData = dataRecepcao ? ` em ${dataRecepcao}` : "";
   await enviarEmail({
     destinatario,
     numero,
     pdfBuffer,
     assunto: `Carga recepcionada — ${tipo} ${numero}`,
-    texto: `A carga referente ao ${tipo} ${numero} foi recepcionada. Segue em anexo o relatório da consulta.`,
+    texto: `A carga referente ao ${tipo} ${numero} foi recepcionada${linhaData}. Segue em anexo o relatório da consulta.`,
   });
 }
