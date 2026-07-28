@@ -11,7 +11,7 @@ import {
   deactivateUser,
   deleteUser,
 } from "./controllers/userController.js";
-import { uploadCertificado, obterStatusCredencial } from "./controllers/certificadoController.js";
+import { uploadCertificado, obterStatusCredencial, deleteCredencial } from "./controllers/certificadoController.js";
 import { definirChaveAcesso, limparChaveAcesso } from "./controllers/acessoChaveController.js";
 import {
   consultarHawb,
@@ -60,6 +60,7 @@ app.patch("/api/users/:id/deactivate", authMiddleware, deactivateUser);
 app.delete("/api/users/:id", authMiddleware, deleteUser);
 
 app.get("/api/credenciais/status", authMiddleware, obterStatusCredencial);
+app.patch("/api/credenciais/:id/delete", authMiddleware, deleteCredencial);
 
 app.post(
   "/api/certificado",

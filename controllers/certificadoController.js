@@ -10,7 +10,7 @@ export async function obterStatusCredencial(req, res) {
   try {
     const userId = req.userId;
     const { rows } = await pool.query(
-      `SELECT tipo, role_type, updated_at FROM credenciais WHERE user_id = $1`,
+      `SELECT id, tipo, role_type, updated_at FROM credenciais WHERE user_id = $1`,
       [userId]
     );
     const chave = rows.find((r) => r.tipo === "CHAVE");
@@ -21,6 +21,7 @@ export async function obterStatusCredencial(req, res) {
     }
     return res.json({
       existe: true,
+      id: atual.id,
       tipo: atual.tipo,
       roleType: atual.role_type ?? null,
       atualizadoEm: atual.updated_at,
@@ -83,4 +84,10 @@ export async function uploadCertificado(req, res) {
     console.error(e);
     return res.status(500).json({ erro: "Falha ao processar certificado." });
   }
+}
+
+export async function deleteCredencial(req, res){
+  const { rows } = await pool.query(`DELETE FROM credenciais WHERE id = $1 RETURNING id`, [req.params.id]);
+  if (!rows[0]) return res.status(404).json({ erro: "Credencial não encontrada." });
+  res.json({ ok: true });
 }
