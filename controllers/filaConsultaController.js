@@ -10,7 +10,7 @@ export async function listarFila(req, res) {
 
 export async function cancelarItemFila(req, res) {
   const { rows } = await pool.query(
-    `UPDATE fila_consultas SET status = 'cancelada' WHERE id = $1 AND user_id = $2 RETURNING id`,
+    `DELETE FROM fila_consultas WHERE id = $1 AND user_id = $2 RETURNING id`,
     [req.params.id, req.userId]
   );
   if (!rows[0]) return res.status(404).json({ erro: "Item não encontrado." });
