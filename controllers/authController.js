@@ -82,7 +82,7 @@ export async function forgotPassword(req, res) {
       [user.id, tokenHash, expiresAt]
     );
 
-    const link = `${process.env.APP_URL}/redefinir-senha?token=${token}`;
+    const link = `${process.env.CORS_ORIGIN}/redefinir-senha?token=${token}`;
 
     await enviarEmailResetSenha({ destinatario: user.email, link });
 
