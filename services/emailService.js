@@ -15,7 +15,7 @@ async function obterConfigSmtp() {
   };
 }
 
-async function enviarEmail({ destinatario, assunto, texto, numero, pdfBuffer }) {
+async function enviarEmail({ destinatario, assunto, texto, html, numero, pdfBuffer }) {
   const cfg = await obterConfigSmtp();
   const transporter = nodemailer.createTransport({
     host: cfg.host,
@@ -24,14 +24,17 @@ async function enviarEmail({ destinatario, assunto, texto, numero, pdfBuffer }) 
     auth: { user: cfg.user, pass: cfg.pass },
   });
 
+  const anexos = pdfBuffer
+    ? [{ filename: `consulta_${numero}.pdf`, content: pdfBuffer, contentType: "application/pdf" }]
+    : undefined;
+
   await transporter.sendMail({
     from: cfg.from,
     to: destinatario,
     subject: assunto,
     text: texto,
-    attachments: [
-      { filename: `consulta_${numero}.pdf`, content: pdfBuffer, contentType: "application/pdf" },
-    ],
+    html,
+    attachments: anexos,
   });
 }
 
@@ -56,5 +59,19 @@ export async function enviarEmailRecepcionado({ destinatario, tipo, numero, pdfB
     pdfBuffer,
     assunto: `Carga recepcionada — ${tipo} ${numero}`,
     texto: `A carga referente ao ${tipo} ${numero} foi recepcionada${linhaData}. Segue em anexo o relatório da consulta.`,
+  });
+}
+
+export async function enviarEmailResetSenha({ destinatario, link }) {
+  await enviarEmail({
+    destinatario,
+    assunto: "Redefinição de senha",
+    texto: `Recebemos uma solicitação para redefinir sua senha. Acesse o link abaixo (válido por 30 minutos): ${link}\n\nSe você não pediu isso, pode ignorar este e-mail.`,
+    html: `
+      <p>Olá,</p>
+      <p>Recebemos uma solicitação para redefinir sua senha. Clique no link abaixo (válido por 30 minutos):</p>
+      <p><a href="${link}">${link}</a></p>
+      <p>Se você não pediu isso, pode ignorar este e-mail.</p>
+    `,
   });
 }

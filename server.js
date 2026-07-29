@@ -2,7 +2,7 @@ import "./loadEnv.js";
 import express from "express";
 import cors from "cors";
 import multer from "multer";
-import { login, me } from "./controllers/authController.js";
+import { login, me, forgotPassword, resetPassword } from "./controllers/authController.js";
 import {
   listUsers,
   getUser,
@@ -51,6 +51,8 @@ app.get("/api/health", (_req, res) => {
 
 app.post("/api/auth/login", login);
 app.get("/api/auth/me", authMiddleware, me);
+app.post("/api/auth/esqueci-senha", forgotPassword);
+app.post("/api/auth/redefinir-senha", resetPassword);
 
 app.get("/api/users", authMiddleware, listUsers);
 app.get("/api/users/:id", authMiddleware, getUser);
