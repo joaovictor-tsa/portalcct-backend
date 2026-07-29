@@ -99,8 +99,17 @@ export async function resetPassword(req, res) {
     if (!token || !novaSenha) {
       return res.status(400).json({ erro: "Token e nova senha são obrigatórios." });
     }
-    if (String(novaSenha).length < 8) {
-      return res.status(400).json({ erro: "A senha deve ter ao menos 8 caracteres." });
+
+    const senha = String(novaSenha);
+    const errosSenha = [];
+    if (senha.length < 8) errosSenha.push("no mínimo 8 caracteres");
+    if (!/[A-Z]/.test(senha)) errosSenha.push("uma letra maiúscula");
+    if (!/[^A-Za-z0-9]/.test(senha)) errosSenha.push("um caractere especial");
+
+    if (errosSenha.length > 0) {
+      return res.status(400).json({
+        erro: `A senha precisa ter: ${errosSenha.join(", ")}.`,
+      });
     }
 
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
@@ -116,7 +125,7 @@ export async function resetPassword(req, res) {
       return res.status(400).json({ erro: "Link inválido ou expirado." });
     }
 
-    const passwordHash = await bcrypt.hash(String(novaSenha), 10);
+    const passwordHash = await bcrypt.hash(senha, 10);
 
     await pool.query(`UPDATE users SET password_hash = $1 WHERE id = $2`, [
       passwordHash,
