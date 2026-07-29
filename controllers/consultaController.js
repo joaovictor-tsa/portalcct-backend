@@ -1,6 +1,6 @@
 import { SiscomexConsultaService } from "../services/SiscomexConsultaService.js";
 import { garantirNaFila, resolverSeNaFila } from "../services/filaConsultaService.js";
-import { estaRecepcionada, documentoEncontrado } from "../utils/statusConsulta.js";
+import { estaRecepcionada, documentoEncontrado, todasPartesRecepcionadas } from "../utils/statusConsulta.js";
 import {
   extrairCodigosErro,
   formatarErroSiscomex,
@@ -17,13 +17,13 @@ import { mensagemErroPfx } from "../utils/validarPfx.js";
 function sincronizarFila({ userId, tipo, numero, data }) {
   if (!documentoEncontrado(data)) return;
 
-  if (estaRecepcionada(data)) {
+  if (todasPartesRecepcionadas(data)) {
     resolverSeNaFila({ numero, resultado: data }).catch((e) =>
       console.error(`[Fila] falha ao resolver item pendente (${tipo} ${numero}):`, e.message)
     );
   } else {
-    // garante que o documento está na fila e, na sequência, já checa se a chegada
-    // precisa ser notificada agora (sem esperar o próximo ciclo do job).
+    // garante que o documento está na fila e, na sequência, já atualiza o registro
+    // (tentativas/última consulta) sem esperar o próximo ciclo do job.
     garantirNaFila({ userId, tipo, numero })
       .then(() => resolverSeNaFila({ numero, resultado: data }))
       .catch((e) =>
