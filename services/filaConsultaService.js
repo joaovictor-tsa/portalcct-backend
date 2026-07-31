@@ -19,10 +19,10 @@ function normalizarArray(resultado) {
 }
 
 export async function garantirNaFila({ userId, tipo, numero }) {
-  const numeroTrim = String(numero).trim();
+  const numeroTrim = String(numero).trim().toUpperCase();
 
   const existente = await pool.query(
-    `SELECT * FROM fila_consultas WHERE numero = $1 AND status = 'pendente'`,
+    `SELECT * FROM fila_consultas WHERE upper(numero) = $1 AND status = 'pendente'`,
     [numeroTrim]
   );
   if (existente.rows[0]) return existente.rows[0];
@@ -38,10 +38,9 @@ export async function garantirNaFila({ userId, tipo, numero }) {
     );
     return rows[0];
   } catch (e) {
-    // corrida: dois colaboradores consultaram o mesmo documento ao mesmo tempo — não duplica
     if (e.code === "23505") {
       const r2 = await pool.query(
-        `SELECT * FROM fila_consultas WHERE numero = $1 AND status = 'pendente'`,
+        `SELECT * FROM fila_consultas WHERE upper(numero) = $1 AND status = 'pendente'`,
         [numeroTrim]
       );
       return r2.rows[0] ?? null;
