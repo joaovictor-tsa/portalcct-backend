@@ -1,6 +1,6 @@
 import { SiscomexConsultaService } from "../services/SiscomexConsultaService.js";
 import { garantirNaFila, resolverSeNaFila } from "../services/filaConsultaService.js";
-import { estaRecepcionada, documentoEncontrado, todasPartesRecepcionadas } from "../utils/statusConsulta.js";
+import { estaRecepcionada, estaEntregue, documentoEncontrado, todasPartesRecepcionadas } from "../utils/statusConsulta.js";
 import {
   extrairCodigosErro,
   formatarErroSiscomex,
@@ -17,7 +17,7 @@ import { mensagemErroPfx } from "../utils/validarPfx.js";
 function sincronizarFila({ userId, tipo, numero, data }) {
   if (!documentoEncontrado(data)) return;
 
-  if (todasPartesRecepcionadas(data)) {
+  if (todasPartesRecepcionadas(data) || estaEntregue(data)) {
     resolverSeNaFila({ numero, resultado: data }).catch((e) =>
       console.error(`[Fila] falha ao resolver item pendente (${tipo} ${numero}):`, e.message)
     );

@@ -8,6 +8,11 @@ export function estaRecepcionada(resultado) {
   return String(situacao ?? "").trim().toUpperCase() === alvo.trim().toUpperCase();
 }
 
+export function estaEntregue(resultado) {
+  const situacao = resultado?.[0]?.partesEstoque?.[0]?.situacaoAtual ?? null;
+  return String(situacao ?? "").trim().toUpperCase() === "ENTREGUE";
+}
+
 export function extrairPartesRecepcionadas(resultado) {
   const alvo = (process.env.SISCOMEX_STATUS_RECEPCIONADA || "RECEPCIONADA").trim().toUpperCase();
   return (resultado?.[0]?.partesEstoque ?? []).filter(
